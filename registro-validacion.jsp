@@ -1,12 +1,23 @@
-<%@ page contentType="text/html; charset=UTF-8" language="java"%>
 <%
     String number = request.getParameter("edad");
-    int edad = Integer.parseInt(number);
+    int edad = -1; // valor por defecto
+
+    if (number != null && !number.isEmpty()) {
+        try {
+            edad = Integer.parseInt(number);
+        } catch (NumberFormatException e) {
+            edad = -1; // entrada inválida
+        }
+    }
 %>
 <center>
     <h1 style="color:#111CCB">Validación de Registro</h1>
 <%
-    if (edad >= 18) {
+    if (edad == -1) {
+%>
+        <h3 style="color:red">Edad inválida, ingresa un número</h3>
+<%
+    } else if (edad >= 18) {
 %>
         <h3 style="color:#8A0A39">Felicidades, puedes registrarte en la Universidad</h3>
 <%
@@ -20,3 +31,4 @@
     <h3 style="color:#387309"><%=edad%></h3>
     <a href="registro-universidad.jsp">Regresar</a>
 </center>
+
