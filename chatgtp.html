@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT API</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-robot"></i> ChatGPT API</h1>
+        <div class="dev-info">
+            <p><strong>Desarrollador:</strong> José Manuel Ortiz Mundo</p>
+        </div>
+    </header>
+
+    <nav>
+        <a href="examenu2.html" class="btn">Inicio</a>
+        <a href="chatgtp.html" class="btn active">ChatGPT</a>
+        <a href="gemini.html" class="btn">Gemini</a>
+    </nav>
+
+    <main>
+        <div class="chat">
+            <div id="chat-history" class="history">
+                <div class="msg bot">Hola, soy ChatGPT de OpenAI. ¿En qué te ayudo?</div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="chat-input" placeholder="Escribe tu mensaje...">
+                <button onclick="enviarChatGPT()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <div id="error" class="error"></div>
+        
+    </main>
+
+    <script>
+        // 🔑 PEGA TU API KEY DE OPENAI AQUÍ
+        const API_KEY = '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';
+
+        async function enviarChatGPT() {
+            const input = document.getElementById('chat-input');
+            const history = document.getElementById('chat-history');
+            const errorDiv = document.getElementById('error');
+            const mensaje = input.value.trim();
+
+            if (!mensaje) return;
+
+            // Mostrar mensaje del usuario
+            history.innerHTML += `<div class="msg user">${mensaje}</div>`;
+            input.value = '';
+            
+            // Mostrar loading
+            history.innerHTML += `<div class="msg bot" id="loading">
+                <i class="fas fa-spinner fa-spin"></i> ChatGPT está escribiendo...
+            </div>`;
+            history.scrollTop = history.scrollHeight;
+
+            try {
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            { role: 'system', content: 'Eres un asistente útil.' },
+                            { role: 'user', content: mensaje }
+                        ],
+                        max_tokens: 500
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+                
+                const respuesta = data.choices[0].message.content;
+                document.getElementById('loading').innerText = respuesta;
+                errorDiv.style.display = 'none';
+
+            } catch (error) {
+                document.getElementById('loading').remove();
+                errorDiv.style.display = 'block';
+                
+                if (error.message.includes('api_key')) {
+                    errorDiv.innerHTML = `
+                        <strong>❌ API Key Inválida</strong><br>
+                    `;
+                } else if (error.message.includes('credit')) {
+                    errorDiv.innerHTML = `
+                        <strong>❌ Sin Crédito</strong><br>
+                        Necesitas agregar fondos en: <a href="https://platform.openai.com/account/billing" target="_blank">Billing</a>
+                    `;
+                } else {
+                    errorDiv.innerText = 'Error: ' + error.message;
+                }
+            }
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') enviarChatGPT();
+        });
+    </script>
+</body>
+</html>

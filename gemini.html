@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini API - Examen U2</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-brain"></i> Google Gemini API</h1>
+        <div class="dev-info">
+            <p><strong>Desarrollador:</strong> José Manuel Ortiz Mundo</p>
+        </div>
+    </header>
+
+    <nav>
+        <a href="examenu2.html" class="btn">Inicio</a>
+        <a href="chatgpt.html" class="btn">ChatGPT</a>
+        <a href="gemini.html" class="btn active">Gemini</a>
+    </nav>
+
+    <main>
+        <div class="chat">
+            <div id="chat-history" class="history">
+                <div class="msg bot">Hola, soy Gemini. ¿En qué te ayudo?</div>
+            </div>
+            <div class="input-area">
+                <input type="text" id="chat-input" placeholder="Escribe tu mensaje...">
+                <button onclick="enviarGemini()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <div id="error" class="error"></div>
+    </main>
+
+    <script>
+        // 🔑 PEGA TU API KEY AQUÍ
+        const API_KEY = 'AIzaSyCKVbAUnTcUlSx9nvxleaiQX45wUkqfAUI';
+        
+        // ✅ CAMBIO IMPORTANTE: Usar v1 en lugar de v1beta
+        const API_VERSION = 'v1';
+        const MODEL = 'gemini-3.1-pro-preview';
+
+        async function enviarGemini() {
+            const input = document.getElementById('chat-input');
+            const history = document.getElementById('chat-history');
+            const errorDiv = document.getElementById('error');
+            const mensaje = input.value.trim();
+
+            if (!mensaje) return;
+
+            history.innerHTML += `<div class="msg user">${mensaje}</div>`;
+            input.value = '';
+            history.innerHTML += `<div class="msg bot" id="loading">
+                <i class="fas fa-spinner fa-spin"></i> Pensando...
+            </div>`;
+            history.scrollTop = history.scrollHeight;
+
+            try {
+                // ✅ URL CORREGIDA con v1 (no v1beta)
+                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: mensaje }] }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error.message);
+                
+                document.getElementById('loading').innerText = data.candidates[0].content.parts[0].text;
+                errorDiv.style.display = 'none';
+
+            } catch (error) {
+                document.getElementById('loading').remove();
+                errorDiv.style.display = 'block';
+                errorDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br><br>
+                    <small>Verifica tu API Key en: 
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></small>
+                `;
+            }
+        }
+
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') enviarGemini();
+        });
+    </script>
+</body>
+</html>
