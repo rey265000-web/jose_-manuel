@@ -9,6 +9,7 @@
 <body>
     <center>
         <h1>Aqui esta el examen</h1>
+        <img src="hola.jpg" alt="Mi foto" width="300" height="200">
         <a href="indexinicial.html">Regresar</a><br>
     </center>
 </body>
