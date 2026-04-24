@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" language="java"%>
 <%
     String number = request.getParameter("edad");
     int edad = -1; 
