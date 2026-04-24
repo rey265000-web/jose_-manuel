@@ -1,12 +1,12 @@
 <%
     String number = request.getParameter("edad");
-    int edad = -1; // valor por defecto
+    int edad = -1; 
 
     if (number != null && !number.isEmpty()) {
         try {
             edad = Integer.parseInt(number);
         } catch (NumberFormatException e) {
-            edad = -1; // entrada inválida
+            edad = -1;
         }
     }
 %>
